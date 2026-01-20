@@ -8,7 +8,7 @@ __pycache__/
 *.egg
 dist/
 build/
-.python-version
+*.python-version
 
 # Virtual environments
 venv/
