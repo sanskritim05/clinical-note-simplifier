@@ -151,7 +151,7 @@ http://127.0.0.1:8000
 
    * Calls Groq’s LLM for simplification
    * Computes readability metrics before & after
-4. Backend returns structured JSON
+4. Backend returns information
 5. Frontend:
 
    * Displays simplified text
