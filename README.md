@@ -1,3 +1,5 @@
+<video src="path/to/clinical-note-simplifier.mov" width="320" height="240" controls></video>
+
 # 🏥 Clinical Note Simplifier
 
 A **FastAPI-based web application** that transforms complex clinical notes into clear, patient‑friendly language using **Groq’s LLM**, while objectively measuring readability improvements.
