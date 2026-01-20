@@ -120,7 +120,7 @@ pip install -r requirements.txt
 
 ### 4️⃣ Configure Environment Variables
 
-Create a `.env` file in the project root:
+Update the `.env.example` file in the project root and rename it to .env:
 
 ```env
 GROQ_API_KEY=your_api_key_here
