@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clinical Note Simplifier</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <h1>Clinical Note Simplifier</h1>
+
+    <!-- Input -->
+    <textarea id="inputText" placeholder="Paste clinical note here..."></textarea>
+
+    <div class="action-buttons">
+        <button id="simplifyBtn">Simplify</button>
+        <button id="newNoteBtn">New Note</button>
+        <button id="copyBtn" style="display:none;">Copy Simplified Text</button>
+        <button id="pdfBtn" style="display:none;">Download PDF</button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="spinner" class="spinner" style="display:none;"></div>
+
+    <!-- Results Section (hidden until simplify is clicked) -->
+    <div id="results" style="display:none;">
+        <h2>Simplified Text</h2>
+        <pre id="simplifiedText"></pre>
+
+        <h2>Readability</h2>
+        <div id="readability"></div>
+    </div>
+
+    <!-- JS -->
+    <script src="/static/main.js"></script>
+</body>
+</html>
