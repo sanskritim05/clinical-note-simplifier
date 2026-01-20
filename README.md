@@ -61,7 +61,6 @@ clinical-note-simplifier/
 ├── nlp_utils.py          # Readability + text utilities
 ├── models.py             # Pydantic request/response models
 │
-├── .env                  # Private API keys (ignored)
 ├── .env.example          # Template for environment variables
 ├── .gitignore            # Files to exclude from Git
 ├── requirements.txt      # Python dependencies
