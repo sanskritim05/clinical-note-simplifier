@@ -54,27 +54,24 @@ Results are displayed side‑by‑side in a comparison table so users can clearl
 ## 🏗 Architecture Overview
 
 ```
-Frontend (HTML / CSS / JavaScript)
+clinical-note-simplifier/
 │
-├── Text input for clinical notes
-├── Fetch request to FastAPI backend
-├── Loading spinner + animations
-├── Render simplified text
-├── Readability comparison table
-├── Copy & PDF export logic
+├── app.py                # FastAPI app + routes
+├── groq_client.py        # Groq API wrapper
+├── nlp_utils.py          # Readability + text utilities
+├── models.py             # Pydantic request/response models
 │
-Backend (FastAPI / Python)
+├── .env                  # Private API keys (ignored)
+├── .env.example          # Template for environment variables
+├── .gitignore            # Files to exclude from Git
+├── requirements.txt      # Python dependencies
 │
-├── Receives clinical note text
-├── Sends text to Groq LLM
-├── Computes readability metrics (textstat)
-├── Returns structured JSON response
+├── templates/
+│   └── index.html        # Main UI page
 │
-Environment Variables (.env)
-│
-├── GROQ_API_KEY
-├── GROQ_MODEL
-├── APP_ENV
+└── static/
+    ├── style.css         # UI styling
+    └── main.js           # Frontend logic
 ```
 
 ---
@@ -161,26 +158,6 @@ http://127.0.0.1:8000
    * Displays simplified text
    * Renders readability comparison table
    * Enables copy & PDF download buttons
-
----
-
-## 📦 API Response Format
-
-```json
-{
-  "simplified_text": "Patient-friendly explanation...",
-  "readability_before": {
-    "flesch": 32.1,
-    "fk_grade": 14.2,
-    "smog": 12.8
-  },
-  "readability_after": {
-    "flesch": 72.4,
-    "fk_grade": 6.1,
-    "smog": 5.9
-  }
-}
-```
 
 ---
 
