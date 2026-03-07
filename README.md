@@ -1,5 +1,5 @@
 
-# 🏥 Clinical Note Simplifier
+# Clinical Note Simplifier
 
 https://github.com/user-attachments/assets/f3d91de3-33fa-4a49-ad9b-8455ee883791
 
@@ -9,15 +9,15 @@ The app is designed to help clinicians communicate more effectively with patient
 
 ---
 
-## ✨ Features
+## Features
 
-### 🧠 AI‑Powered Clinical Note Simplification
+### AI‑Powered Clinical Note Simplification
 
 * Paste raw clinical notes into the app
 * Sends text to **Groq’s LLM** for simplification
 * Returns a clear, patient‑friendly explanation
 
-### 📊 Readability Analysis (Before & After)
+### Readability Analysis (Before & After)
 
 Using the `textstat` library, the backend computes:
 
@@ -29,7 +29,7 @@ Using the `textstat` library, the backend computes:
 
 Results are displayed side‑by‑side in a comparison table so users can clearly see improvement.
 
-### 🖥️ Modern, Medical‑Grade UI
+### Modern, Medical‑Grade UI
 
 * Clean typography (Inter font)
 * Responsive layout
@@ -37,24 +37,24 @@ Results are displayed side‑by‑side in a comparison table so users can clearl
 * Loading spinner during model processing
 * Aligned action buttons for clarity
 
-### 📋 Copy to Clipboard
+### Copy to Clipboard
 
 * One‑click **Copy Simplified Text** button
 * Appears only after results are generated
 
-### 📄 PDF Export
+### PDF Export
 
 * Download the simplified note as a **PDF**
 * Generated directly in the browser using `jsPDF`
 
-### 🔄 Reset & Start Over
+### Reset & Start Over
 
 * **New Note** button clears input
 * Hides results and resets the UI state
 
 ---
 
-## 🏗 Architecture Overview
+## Architecture Overview
 
 ```
 clinical-note-simplifier/
@@ -78,7 +78,7 @@ clinical-note-simplifier/
 
 ---
 
-## 🧩 Tech Stack
+## Tech Stack
 
 ### Backend
 
@@ -97,7 +97,7 @@ clinical-note-simplifier/
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### 1️⃣ Clone the Repository
 
@@ -132,7 +132,7 @@ APP_ENV=development
 
 ---
 
-## ▶️ Running the App
+## Running the App
 
 ```bash
 uvicorn main:app --reload
@@ -146,7 +146,7 @@ http://127.0.0.1:8000
 
 ---
 
-## 🧪 How It Works (Step‑by‑Step)
+## How It Works (Step‑by‑Step)
 
 1. User pastes a clinical note into the text box
 2. Frontend sends the note to the FastAPI backend
@@ -163,7 +163,7 @@ http://127.0.0.1:8000
 
 ---
 
-## 🎯 Use Cases
+## Use Cases
 
 * Improve patient understanding of visit summaries
 * Assist clinicians with health‑literacy compliance
@@ -172,7 +172,7 @@ http://127.0.0.1:8000
 
 ---
 
-## 🔒 Privacy & Local Use
+## Privacy & Local Use
 
 * Runs locally by default
 * No data persistence
@@ -181,7 +181,7 @@ http://127.0.0.1:8000
 
 ---
 
-## 🛣️ Future Enhancements
+## Future Enhancements
 
 * Dark mode
 * Multi‑language support
@@ -191,18 +191,9 @@ http://127.0.0.1:8000
 
 ---
 
-## 📜 License
+## License
 
 MIT License
 
----
-
-## 🙌 Acknowledgements
-
-* Groq for fast LLM inference
-* FastAPI for a clean backend framework
-* textstat for readability scoring
-
----
 
 **Clinical Note Simplifier** — turning medical language into understanding.
