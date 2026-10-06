@@ -4,11 +4,9 @@ from groq import Groq
 
 load_dotenv()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
-def simplify_clinical_text(text: str) -> str:
-    system_prompt = (
+SYSTEM_PROMPT = (
     "Rewrite the clinical note using clear, simple, direct language at a 5th-grade reading level. "
     "Do not use first-person language such as 'I', 'me', or 'my'. "
     "Do not use conversational tone. "
@@ -26,17 +24,38 @@ def simplify_clinical_text(text: str) -> str:
     "Write only plain text paragraphs under each heading. "
     "Explain any medical terms in simple language. "
     "Focus on what the patient needs to understand: what the problem is, what it means, and what actions to take."
-    )
+)
 
 
-    response = client.chat.completions.create(
+class MissingAPIKeyError(RuntimeError):
+    pass
+
+
+_client = None
+
+
+def get_client() -> Groq:
+    # Created lazily so the app can start (and show a helpful error) without a key.
+    global _client
+    if _client is None:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key or api_key == "your_api_key_here":
+            raise MissingAPIKeyError(
+                "GROQ_API_KEY is not set. Add it to your .env file (or your Vercel project's environment variables)."
+            )
+        _client = Groq(api_key=api_key)
+    return _client
+
+
+def simplify_clinical_text(text: str) -> str:
+    response = get_client().chat.completions.create(
         model=MODEL,
         messages=[
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": text},
         ],
         temperature=0.3,
-        max_tokens=1024,
+        max_tokens=4096,
     )
 
     return response.choices[0].message.content.strip()

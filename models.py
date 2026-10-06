@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class SimplifyRequest(BaseModel):
-    text: str
+    text: str = Field(..., max_length=20000)
 
 class SimplifyResponse(BaseModel):
     original_text: str

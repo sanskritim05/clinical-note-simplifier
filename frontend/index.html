@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clinical Note Simplifier</title>
+    <meta name="description" content="Turn dense clinical notes into clear, patient-friendly language, with readability scores before and after.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f1b16'/%3E%3Cpath d='M13.5 7h5v6.5H25v5h-6.5V25h-5v-6.5H7v-5h6.5z' fill='%23ffd94a'/%3E%3C/svg%3E">
+
+    <!-- Apply the saved theme before first paint to avoid a flash -->
+    <script>
+        try {
+            const t = localStorage.getItem("theme");
+            if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+        } catch (e) {}
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/style.css">
+
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+</head>
+
+<body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="masthead">
+        <a class="wordmark" href="/">
+            <span class="wordmark-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7"/><path d="M13.5 7h5v6.5H25v5h-6.5V25h-5v-6.5H7v-5h6.5z"/></svg>
+            </span>
+            <span class="wordmark-text">Clinical Note <em>Simplifier</em></span>
+        </a>
+        <nav class="masthead-actions">
+            <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="kicker">For clinicians, caregivers &amp; patients</p>
+                <h1>Medical notes, rewritten in <span class="hl">plain words.</span></h1>
+                <p class="lede">Paste the shorthand doctors write for each other. Get back something a patient can actually read, with the readability scores to prove it.</p>
+            </div>
+
+            <aside class="decoder" aria-label="Examples of medical shorthand in plain language">
+                <p class="decoder-label">Jargon decoder</p>
+                <div class="decoder-body">
+                    <p class="decoder-term" id="decTerm">HTN</p>
+                    <svg class="decoder-arrow" viewBox="0 0 40 24" aria-hidden="true"><path d="M2 12c8-6 16 6 24 0M26 12l-5-5M26 12l-5 5"/></svg>
+                    <p class="decoder-plain" id="decPlain">high blood pressure</p>
+                </div>
+                <div class="decoder-dots" id="decDots" aria-hidden="true"></div>
+            </aside>
+        </section>
+
+        <section class="desk">
+            <!-- Input: the chart -->
+            <article class="sheet sheet-chart">
+                <span class="tab">The chart</span>
+                <header class="sheet-head">
+                    <label class="sheet-label" for="inputText">Clinical note</label>
+                    <button class="text-btn" id="sampleBtn" type="button">Use a sample note</button>
+                </header>
+                <textarea id="inputText" spellcheck="false" placeholder="Paste a clinical note, discharge summary, or visit note…"></textarea>
+                <footer class="sheet-foot">
+                    <span class="meta" id="inputMeta">0 words</span>
+                    <button class="text-btn" id="newNoteBtn" type="button">Clear</button>
+                </footer>
+            </article>
+
+            <!-- The hinge -->
+            <div class="hinge">
+                <button class="go" id="simplifyBtn" type="button">
+                    <span class="go-label">Simplify</span>
+                    <svg class="go-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+                    <span class="go-spinner" aria-hidden="true"></span>
+                </button>
+                <kbd class="kbd" id="shortcutHint">⌘ ↵</kbd>
+            </div>
+
+            <!-- Output: the letter -->
+            <article class="sheet sheet-letter">
+                <span class="tab tab-letter">For the patient</span>
+                <header class="sheet-head">
+                    <span class="sheet-label">Plain-language version</span>
+                    <div class="sheet-actions" id="outputActions" hidden>
+                        <button class="chip" id="copyBtn" type="button" aria-label="Copy simplified text" title="Copy simplified text">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>
+                            <span>Copy</span>
+                        </button>
+                        <button class="chip" id="pdfBtn" type="button" aria-label="Download as PDF" title="Download as PDF">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+                            <span>PDF</span>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="output-body" id="outputBody" aria-live="polite">
+                    <!-- Empty state -->
+                    <div class="empty" id="emptyState">
+                        <svg class="empty-arrow" viewBox="0 0 120 60" aria-hidden="true"><path d="M114 8C90 6 64 18 52 34 44 45 30 50 10 46M10 46l12-10M10 46l13 7"/></svg>
+                        <p class="empty-title">Nothing to translate yet.</p>
+                        <p class="empty-sub">Paste a note on the chart, then hit <strong>Simplify</strong>.</p>
+                    </div>
+
+                    <!-- Loading state -->
+                    <div class="loading" id="loadingState" hidden>
+                        <p class="loading-title">Translating the jargon…</p>
+                        <div class="hl-line" style="width:88%"></div>
+                        <div class="hl-line" style="width:72%"></div>
+                        <div class="hl-line" style="width:94%"></div>
+                        <div class="hl-line" style="width:60%"></div>
+                        <div class="hl-line" style="width:80%"></div>
+                    </div>
+
+                    <!-- Result -->
+                    <div class="simplified" id="simplifiedText" hidden></div>
+                </div>
+            </article>
+        </section>
+
+        <!-- Readability report (hidden until results) -->
+        <section class="report" id="readability" hidden>
+            <header class="report-head">
+                <div>
+                    <p class="kicker">Readability report</p>
+                    <h2 id="reportHeadline"></h2>
+                    <p class="report-sub" id="reportSub"></p>
+                </div>
+                <div class="stamp" id="stamp"></div>
+            </header>
+
+            <div class="ruler" id="ruler"></div>
+
+            <div class="lab">
+                <div class="lab-head">
+                    <span>Readability panel</span>
+                    <span id="labTime"></span>
+                </div>
+                <table class="lab-table" id="labTable"></table>
+                <p class="lab-foot">Scores computed with <a href="https://github.com/textstat/textstat" target="_blank" rel="noopener">textstat</a>. Medical shorthand can make the original look easier than it really is.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="colophon">
+        <p><strong>Not medical advice.</strong> AI-generated text can contain mistakes. A clinician should review every simplified note before it reaches a patient.</p>
+        <p>Notes are processed in memory and never stored.</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="/main.js"></script>
+</body>
+</html>
