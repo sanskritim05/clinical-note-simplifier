@@ -1,213 +1,151 @@
-
 # Clinical Note Simplifier
+
+**Turn clinical notes into plain language patients can actually read, and measure how much easier it got.**
+
+[Live demo](https://clinical-note-simplifier.vercel.app) · [Run it locally](#quick-start) · [Deploy your own](#deploy-to-vercel)
 
 https://github.com/user-attachments/assets/f3d91de3-33fa-4a49-ad9b-8455ee883791
 
-A **FastAPI-based web application** that transforms complex clinical notes into clear, patient‑friendly language using **Groq’s LLM**, while objectively measuring readability improvements.
+Clinical notes are written for other clinicians: dense, abbreviated, and full of jargon. Patients read them anyway, now that visit notes are shared through patient portals. This app takes a note, rewrites it at a 5th‑grade reading level with an LLM, and scores the original and the rewrite with standard readability formulas so you can see the difference rather than take it on faith.
 
-The app is designed to help clinicians communicate more effectively with patients by simplifying dense medical text and presenting readability metrics in a clean, modern interface.
+For example, the included sample discharge summary:
+
+| | Original | Simplified |
+|---|---|---|
+| Flesch–Kincaid grade | 20.0 (graduate level) | ~6 |
+| Flesch reading ease (0–100) | below 0 | ~65 |
+| Gunning fog | 25.0 | ~9 |
+
+*(Simplified scores vary slightly from run to run.)*
 
 ---
 
 ## Features
 
-### AI‑Powered Clinical Note Simplification
-
-* Paste raw clinical notes into the app
-* Sends text to **Groq’s LLM** for simplification
-* Returns a clear, patient‑friendly explanation
-
-### Readability Analysis (Before & After)
-
-Using the `textstat` library, the backend computes:
-
-* Flesch Reading Ease
-* Flesch‑Kincaid Grade Level
-* SMOG Index
-* Gunning Fog Index
-* Dale‑Chall Score
-
-Results show where the note lands on a grade‑level ruler before and after, whether it meets the AMA's ≤ 6th‑grade target for patient materials, and a full before/after score panel.
-
-### A Distinctive, Paper‑Inspired UI
-
-* "The chart and the letter": the clinical note sits on ruled chart paper, the simplified version on a clean letter, joined by a big highlighter‑yellow **Simplify** button
-* A **jargon decoder** card in the hero that cycles through common shorthand (HTN, NPO, PO BID…)
-* A **readability report** with a grade‑level ruler, a "meets 6th‑grade target" stamp, and a lab‑report‑style score panel
-* Instrument Serif, Bricolage Grotesque, and IBM Plex Mono on warm paper with subtle grain
-* Light & dark mode (follows your system, with a toggle), fully responsive
-* **Use a sample note** button and `⌘/Ctrl + Enter` shortcut
-
-### Copy & PDF Export
-
-* One‑click **Copy** of the simplified text
-* **PDF** download with a title, section headings, and page numbers, generated in the browser with `jsPDF`
+- **Plain‑language rewrite**: sends the note to an LLM on [Groq](https://groq.com) with instructions to write short sentences under clear headings (Symptoms, Diagnosis, Treatment, Warning Signs…) and to explain every medical term.
+- **Before/after readability report**:
+  - Five standard scores from [`textstat`](https://github.com/textstat/textstat): Flesch–Kincaid grade, Flesch reading ease, SMOG, Gunning fog, and Dale–Chall.
+  - A grade‑level ruler that shows where the note started and where it ended up.
+  - A stamp when the result meets the AMA's recommendation that patient materials be written at or below a 6th‑grade level.
+- **Copy or download as PDF**: the PDF has a title, numbered sections, and page numbers, and is generated in the browser with jsPDF.
+- **A UI built around the idea**: the note sits on ruled "chart" paper and the rewrite on a clean "letter," with a jargon decoder that cycles through shorthand like HTN → *high blood pressure*. It has light and dark themes and works on phones.
+- **Small and dependency‑light**: a FastAPI backend and a plain HTML/CSS/JS frontend, with no build step.
 
 ---
 
-## Architecture Overview
+## How it works
 
 ```
-clinical-note-simplifier/
-│
-├── app.py                # FastAPI app: /api routes + serves the frontend
-├── groq_client.py        # Groq API wrapper
-├── nlp_utils.py          # Readability metrics
-├── models.py             # Pydantic request/response models
-│
-├── .env.example          # Template for environment variables
-├── requirements.txt      # Python dependencies
-├── vercel.json           # Vercel function settings
-├── nltk_data/            # CMU pronouncing dictionary used by textstat (bundled for serverless hosts)
-│
-└── frontend/
-    ├── index.html        # Main UI page
-    ├── style.css         # UI styling (light + dark themes)
-    └── main.js           # Frontend logic
+Browser ──POST /api/simplify──▶ FastAPI
+                                 ├─▶ Groq LLM: rewrite the note in plain language
+                                 └─▶ textstat: score the original and the rewrite
+Browser ◀── simplified text + both sets of scores
 ```
 
----
+1. You paste a note (or click **Use a sample note**) and press **Simplify** (or `⌘/Ctrl + Enter`).
+2. The backend sends the note to Groq with a system prompt that sets the reading level, structure, and formatting rules.
+3. The backend scores both texts with `textstat` and returns everything in one response.
+4. The frontend splits the rewrite into sections and draws the readability report.
 
-## Tech Stack
-
-### Backend
-
-* **Python 3.9+**
-* **FastAPI**
-* **Groq API** (LLM inference, `openai/gpt-oss-120b` by default)
-* **textstat** (readability metrics)
-* **python-dotenv**
-
-### Frontend
-
-* HTML5
-* CSS3 (modern layout & animations)
-* Vanilla JavaScript
-* jsPDF (PDF generation)
+Nothing is saved. Each note exists only for the length of its request.
 
 ---
 
-## Installation
+## Quick start
 
-### 1️⃣ Clone the Repository
+You'll need Python 3.9+ and a free [Groq API key](https://console.groq.com/keys).
 
 ```bash
 git clone https://github.com/sanskritim05/clinical-note-simplifier.git
 cd clinical-note-simplifier
-```
 
-### 2️⃣ Create a Virtual Environment
-
-```bash
 python -m venv venv
-source venv/bin/activate  # macOS/Linux
-venv\Scripts\activate       # Windows
-```
-
-### 3️⃣ Install Dependencies
-
-```bash
+source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-### 4️⃣ Configure Environment Variables
-
-Copy `.env.example` to `.env` and add your [Groq API key](https://console.groq.com/keys):
-
-```env
-GROQ_API_KEY=your_api_key_here
-GROQ_MODEL=openai/gpt-oss-120b
-```
-
----
-
-## Running the App
-
-```bash
+cp .env.example .env            # then add your GROQ_API_KEY
 uvicorn app:app --reload
 ```
 
-Open your browser and visit:
+Open http://127.0.0.1:8000.
 
-```
-http://127.0.0.1:8000
-```
+### Configuration
 
----
-
-## Deploying to Vercel
-
-The app is ready for Vercel's zero‑config FastAPI support: Vercel finds `app` in `app.py`, runs it as a serverless function, and serves the `frontend/` files from its CDN.
-
-1. Push the repo to GitHub and click **Add New → Project** on [vercel.com](https://vercel.com/new), then import it. (Or run `npx vercel` from the project folder.)
-2. In **Settings → Environment Variables**, add `GROQ_API_KEY` (and optionally `GROQ_MODEL`).
-3. Deploy. No build command or output directory is needed.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsanskritim05%2Fclinical-note-simplifier&env=GROQ_API_KEY&envDescription=Your%20Groq%20API%20key&envLink=https%3A%2F%2Fconsole.groq.com%2Fkeys)
-
-`vercel.json` gives the function up to 60 seconds so long notes don't time out.
+| Variable | Required | Default | Notes |
+|---|---|---|---|
+| `GROQ_API_KEY` | Yes | | Your Groq API key |
+| `GROQ_MODEL` | No | `openai/gpt-oss-120b` | Any chat model your key can access |
 
 ---
 
 ## API
 
-`POST /api/simplify`
+### `POST /api/simplify`
 
 ```json
-{ "text": "58 y/o M w/ PMHx of HTN, T2DM..." }
+{ "text": "HOSPITAL COURSE: The patient is a 58-year-old male with..." }
 ```
 
-Returns `simplified_text` plus `readability_before` / `readability_after` score objects. `GET /api/health` returns `{"status": "ok"}`.
+Response:
+
+```json
+{
+  "original_text": "...",
+  "simplified_text": "Patient Information\nThe patient is a 58 year old man...",
+  "readability_before": {
+    "flesch_kincaid_grade": 20.0,
+    "flesch_reading_ease": -12.1,
+    "smog_index": 20.3,
+    "gunning_fog": 25.0,
+    "dale_chall": 14.3,
+    "word_count": 183
+  },
+  "readability_after": { "...": "same keys" }
+}
+```
+
+Errors return `{"detail": "..."}`:
+
+| Status | Meaning |
+|---|---|
+| `422` | Empty note, or longer than 20,000 characters |
+| `500` | `GROQ_API_KEY` is not set |
+| `502` | The Groq request failed (the full error is logged on the server) |
+
+### `GET /api/health`
+
+Returns `{"status": "ok"}`.
 
 ---
 
-## How It Works (Step‑by‑Step)
+## Project structure
 
-1. User pastes a clinical note into the text box
-2. Frontend sends the note to the FastAPI backend
-3. Backend:
-
-   * Calls Groq’s LLM for simplification
-   * Computes readability metrics before & after
-4. Backend returns the simplified text and both sets of scores
-5. Frontend:
-
-   * Displays simplified text with section headings
-   * Renders the readability report (grade ruler + score panel)
-   * Enables copy & PDF download buttons
-
----
-
-## Use Cases
-
-* Improve patient understanding of visit summaries
-* Assist clinicians with health‑literacy compliance
-* Educational tool for medical communication
-* Foundation for multilingual or accessibility‑focused extensions
+```
+clinical-note-simplifier/
+├── app.py            # FastAPI app: /api routes, serves the frontend
+├── groq_client.py    # Prompt + Groq API call
+├── nlp_utils.py      # Readability scores (textstat)
+├── models.py         # Request/response models
+├── frontend/
+│   ├── index.html
+│   ├── style.css     # Light + dark themes
+│   └── main.js       # UI logic, readability report, PDF export
+├── nltk_data/        # Bundled CMU dictionary for textstat
+├── requirements.txt
+├── vercel.json
+└── .env.example
+```
 
 ---
 
-## Privacy & Local Use
+## Limitations
 
-* Runs locally by default, or on your own Vercel project
-* No data persistence
-* Notes are processed only in memory
-* Ideal for privacy‑conscious environments
-
----
-
-## Future Enhancements
-
-* Multi‑language support
-* Confidence / uncertainty annotations
-* Highlighted medical term explanations
-* EHR‑friendly export formats
+- **Review before sharing.** LLMs can leave out details or add advice that wasn't in the original note. Treat the output as a draft for a clinician to check, not something to send straight to a patient.
+- **Don't paste real patient data** unless your setup allows it. The app stores nothing but each note is sent to Groq's API for processing, so de‑identify notes or make sure you have the right agreements in place.
+- **Readability formulas have blind spots.** They measure sentence length and syllables, not meaning. Heavy shorthand (`HTN`, `PO BID`) looks like short, easy words, so an abbreviation‑packed note can score lower than it should. A note written in full sentences shows the true size of the improvement.
 
 ---
 
 ## License
 
-MIT License
-
-
-**Clinical Note Simplifier** — turning medical language into understanding.
+[MIT](LICENSE)
