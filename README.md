@@ -2,9 +2,7 @@
 
 **Turn clinical notes into plain language patients can actually read, and measure how much easier it got.**
 
-[Live demo](https://clinical-note-simplifier.vercel.app) · [Run it locally](#quick-start) · [Deploy your own](#deploy-to-vercel)
-
-https://github.com/user-attachments/assets/f3d91de3-33fa-4a49-ad9b-8455ee883791
+[Live demo](https://clinical-note-simplifier.vercel.app) · [Run it locally](#quick-start) 
 
 Clinical notes are written for other clinicians: dense, abbreviated, and full of jargon. Patients read them anyway, now that visit notes are shared through patient portals. This app takes a note, rewrites it at a 5th‑grade reading level with an LLM, and scores the original and the rewrite with standard readability formulas so you can see the difference rather than take it on faith.
 
