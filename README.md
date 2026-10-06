@@ -58,6 +58,7 @@ clinical-note-simplifier/
 ├── .env.example          # Template for environment variables
 ├── requirements.txt      # Python dependencies
 ├── vercel.json           # Vercel function settings
+├── nltk_data/            # CMU pronouncing dictionary used by textstat (bundled for serverless hosts)
 │
 └── frontend/
     ├── index.html        # Main UI page

@@ -1,4 +1,12 @@
+import os
+
+import nltk
 import textstat
+
+# textstat counts syllables with NLTK's CMU pronouncing dictionary and tries to
+# download it on first use. Serverless hosts like Vercel have a read-only home
+# directory, so the dictionary ships with the app in ./nltk_data instead.
+nltk.data.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "nltk_data"))
 
 def compute_readability_scores(text: str) -> dict:
     return {
